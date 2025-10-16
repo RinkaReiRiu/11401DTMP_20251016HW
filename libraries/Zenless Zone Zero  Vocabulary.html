@@ -41,32 +41,25 @@ H5P.RequestQueue=function(i,t){function e(e){t.call(this),this.processingQueue=!
     <body>
         <div class="h5p-content lag" data-content-id="68f0b08bdd28eb04ea1e0f6e"></div>         
         <script>
-    
-    // 確保 H5P 和外部事件派發器已加載
-        if (H5P && H5P.externalDispatcher) {
-
-        H5P.externalDispatcher.on('xAPI', function(event) {
-
-            // 檢查事件是否包含分數信息（通常是 'completed' 或 'answered' 類型）
-            if (event.getScore() !== undefined && event.getMaxScore() > 0) {
-
-                const scoreData = {
-                    type: 'H5P_SCORE_RESULT',
-                    score: event.getScore(),
-                    maxScore: event.getMaxScore()
-                };
-
+            // 確保 H5P 和外部事件派發器已加載
+            if (H5P && H5P.externalDispatcher) {
+                H5P.externalDispatcher.on('xAPI', function(event) {
+                // 檢查事件是否包含分數信息（通常是 'completed' 或 'answered' 類型）
+                if (event.getScore() !== undefined && event.getMaxScore() > 0) {
+                    const scoreData = {
+                        type: 'H5P_SCORE_RESULT',
+                        score: event.getScore(),
+                        maxScore: event.getMaxScore()
+                    };
                 // 使用 postMessage API 將分數傳遞給父層窗口
                 // ！！！安全性提示：請將 'https://your-parent-domain.com' 替換為您的主網頁網域
                 window.parent.postMessage(scoreData, 'https://cfchengit.github.io/20251016');
-
                 console.log('H5P 分數已發送給父層。');
+                    }
+                });
+            } else {
+                console.error('H5P 事件派發器未找到，無法追蹤分數。');
             }
-        });
-
-    } else {
-        console.error('H5P 事件派發器未找到，無法追蹤分數。');
-    }
-</script>
+        </script>
     </body>
 </html>
