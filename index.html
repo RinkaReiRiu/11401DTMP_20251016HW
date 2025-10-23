@@ -24,7 +24,7 @@
         #h5pContainer {
             margin-top: 20px;
         }
-        /* p5.js Canvas 會自動創建在 body 內 */
+        /* 測試控制面板 */
         #testControls {
             margin-top: 16px;
         }
@@ -34,6 +34,26 @@
             margin-right: 8px;
             cursor: pointer;
         }
+
+        /* 新增：p5 canvas 的容器（避免畫布覆蓋其他內容） */
+        #p5CanvasContainer {
+            margin-top: 22px;
+            width: 480px;             /* 預設寬度，可依需求調整 */
+            height: 480px;            /* 預設高度，可依需求調整 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;  /* 若要背景色，可改為黑色或其他 */
+            box-sizing: border-box;
+        }
+
+        /* 當畫布太寬，讓容器隨視窗縮放 */
+        @media (max-width: 600px) {
+            #p5CanvasContainer {
+                width: calc(100% - 40px);
+                height: calc((100% - 40px) * 0.85);
+            }
+        }
     </style>
 </head>
 <body>
@@ -42,7 +62,6 @@
     
     <div id="h5pContainer">
         <!-- 嵌入 H5P 匯出檔案 -->
-        <!-- 將 src 設為 H5P 匯出的 HTML 檔名，例如 h5p_exported.html -->
         <iframe 
             id="h5pIframe" 
             src="zzzv.html" 
@@ -52,15 +71,8 @@
         </iframe>
     </div>
 
-    <!-- 測試與除錯控制：不會新增其他檔案，只在此 HTML 中提供按鈕來模擬 H5P 訊息 -->
-    <div id="testControls" aria-hidden="false">
-        <button id="test100">Simulate 100 / 100 (Fireworks)</button>
-        <button id="test75">Simulate 75 / 100</button>
-        <button id="directFireworks">Direct Trigger (call JS helper)</button>
-        <small style="display:block; margin-top:8px; color:#666;">
-            Use these to quickly verify fireworks and score display. These are only for testing and can be removed.
-        </small>
-    </div>
+    <!-- 新增：專門放 p5.js canvas 的容器，讓畫布不會蓋到其他元素 -->
+    <div id="p5CanvasContainer" aria-hidden="false"></div>
 
     <script>
         // Test buttons: simulate messages that sketch.js listens for.
@@ -76,24 +88,17 @@
         document.getElementById('directFireworks').addEventListener('click', function () {
             // Call the helper exposed by sketch.js to spawn fireworks directly
             if (typeof window.triggerGradeFireworks === 'function') {
-                window.triggerGradeFireworks(6); // spawn 6 fireworks
+                // spawn 6 fireworks (this helper ensures draw loop runs)
+                window.triggerGradeFireworks(6);
             } else if (typeof window.spawnFireworks === 'function') {
-                // fallback to spawnFireworks if helper isn't present
                 spawnFireworks(6);
-                // Ensure draw loop runs
                 if (typeof loop === 'function') loop();
             } else {
                 alert('Fireworks helper not available yet. Ensure sketch.js is loaded.');
             }
         });
-
-        // Optional: forward messages from iframe to parent window listener (if iframe posts to parent)
-        const iframe = document.getElementById('h5pIframe');
-        // If the iframe sends messages to parent, nothing needed here; this just demonstrates forwarding if you need it.
-        // Example (commented): forward messages from iframe origin to parent window
-        // window.addEventListener('message', (ev) => { console.log('received message', ev.data); });
     </script>
 
-    <!-- 分數將顯示在 p5.js 創建的 Canvas 上 -->
+    <!-- 分數將顯示在 p5.js 創建的 Canvas 上（放在 #p5CanvasContainer） -->
 </body>
 </html>
