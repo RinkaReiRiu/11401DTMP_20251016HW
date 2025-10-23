@@ -24,16 +24,6 @@
         #h5pContainer {
             margin-top: 20px;
         }
-        /* 測試控制面板 */
-        #testControls {
-            margin-top: 16px;
-        }
-        #testControls button {
-            padding: 8px 12px;
-            font-size: 14px;
-            margin-right: 8px;
-            cursor: pointer;
-        }
 
         /* 新增：p5 canvas 的容器（避免畫布覆蓋其他內容） */
         #p5CanvasContainer {
@@ -71,33 +61,11 @@
         </iframe>
     </div>
 
-    <!-- 新增：專門放 p5.js canvas 的容器，讓畫布不會蓋到其他元素 -->
+    <!-- p5.js canvas 容器（畫布將被放入此容器，不會遮住頁面其他元素） -->
     <div id="p5CanvasContainer" aria-hidden="false"></div>
 
-    <script>
-        // Test buttons: simulate messages that sketch.js listens for.
-        document.getElementById('test100').addEventListener('click', function () {
-            // Simulate H5P result posted to window
-            window.postMessage({ type: 'H5P_SCORE_RESULT', score: 100, maxScore: 100 }, '*');
-        });
-
-        document.getElementById('test75').addEventListener('click', function () {
-            window.postMessage({ type: 'H5P_SCORE_RESULT', score: 75, maxScore: 100 }, '*');
-        });
-
-        document.getElementById('directFireworks').addEventListener('click', function () {
-            // Call the helper exposed by sketch.js to spawn fireworks directly
-            if (typeof window.triggerGradeFireworks === 'function') {
-                // spawn 6 fireworks (this helper ensures draw loop runs)
-                window.triggerGradeFireworks(6);
-            } else if (typeof window.spawnFireworks === 'function') {
-                spawnFireworks(6);
-                if (typeof loop === 'function') loop();
-            } else {
-                alert('Fireworks helper not available yet. Ensure sketch.js is loaded.');
-            }
-        });
-    </script>
+    <!-- 移除測試按鈕與模擬訊息腳本（按鈕已刪除） -->
+    <!-- 若您需要再次加入測試按鈕或直接觸發的控制，告訴我即可，我會回傳或直接推上 repo。 -->
 
     <!-- 分數將顯示在 p5.js 創建的 Canvas 上（放在 #p5CanvasContainer） -->
 </body>
