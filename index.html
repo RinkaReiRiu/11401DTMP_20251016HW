@@ -1,18 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>ZZZ Glossary: H5P Test</title>
     
-    <!-- 引入 p5.js 函式庫 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script> 
-
-
-    <script src="libraries/p5.min.js"></script>
+    <!-- 使用單一 p5.js 載入（避免重複載入） -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
     <script src="libraries/p5.sound.min.js"></script>
     <!-- 引入您的分數顯示邏輯 (必須在 p5.js 之後載入) -->
-    <!-- 確保 JS 檔案載入順序正確，以讓變數作用於全域範圍 [4] -->
+    <!-- 確保 JS 檔案載入順序正確，以讓變數作用於全域範圍 -->
     <script src="sketch.js"></script>
     
     <style>
@@ -29,11 +25,20 @@
             margin-top: 20px;
         }
         /* p5.js Canvas 會自動創建在 body 內 */
+        #testControls {
+            margin-top: 16px;
+        }
+        #testControls button {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>Zenless Zone Zero: Glossary Test</h1></br>
-    <p>Scratch words below to particular blank.</p></br>
+    <h1>Zenless Zone Zero: Glossary Test</h1>
+    <p>Scratch words below to particular blank.</p>
     
     <div id="h5pContainer">
         <!-- 嵌入 H5P 匯出檔案 -->
@@ -46,7 +51,49 @@
             style="border: 2px solid #ccc;">
         </iframe>
     </div>
-    
+
+    <!-- 測試與除錯控制：不會新增其他檔案，只在此 HTML 中提供按鈕來模擬 H5P 訊息 -->
+    <div id="testControls" aria-hidden="false">
+        <button id="test100">Simulate 100 / 100 (Fireworks)</button>
+        <button id="test75">Simulate 75 / 100</button>
+        <button id="directFireworks">Direct Trigger (call JS helper)</button>
+        <small style="display:block; margin-top:8px; color:#666;">
+            Use these to quickly verify fireworks and score display. These are only for testing and can be removed.
+        </small>
+    </div>
+
+    <script>
+        // Test buttons: simulate messages that sketch.js listens for.
+        document.getElementById('test100').addEventListener('click', function () {
+            // Simulate H5P result posted to window
+            window.postMessage({ type: 'H5P_SCORE_RESULT', score: 100, maxScore: 100 }, '*');
+        });
+
+        document.getElementById('test75').addEventListener('click', function () {
+            window.postMessage({ type: 'H5P_SCORE_RESULT', score: 75, maxScore: 100 }, '*');
+        });
+
+        document.getElementById('directFireworks').addEventListener('click', function () {
+            // Call the helper exposed by sketch.js to spawn fireworks directly
+            if (typeof window.triggerGradeFireworks === 'function') {
+                window.triggerGradeFireworks(6); // spawn 6 fireworks
+            } else if (typeof window.spawnFireworks === 'function') {
+                // fallback to spawnFireworks if helper isn't present
+                spawnFireworks(6);
+                // Ensure draw loop runs
+                if (typeof loop === 'function') loop();
+            } else {
+                alert('Fireworks helper not available yet. Ensure sketch.js is loaded.');
+            }
+        });
+
+        // Optional: forward messages from iframe to parent window listener (if iframe posts to parent)
+        const iframe = document.getElementById('h5pIframe');
+        // If the iframe sends messages to parent, nothing needed here; this just demonstrates forwarding if you need it.
+        // Example (commented): forward messages from iframe origin to parent window
+        // window.addEventListener('message', (ev) => { console.log('received message', ev.data); });
+    </script>
+
     <!-- 分數將顯示在 p5.js 創建的 Canvas 上 -->
 </body>
 </html>
