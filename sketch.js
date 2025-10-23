@@ -13,15 +13,14 @@ let gravity;
 let fireworkActive = false; // 是否正在玩煙火動畫
 
 window.addEventListener('message', function (event) {
-    // 執行來源驗證...
-    // ...
+    // 執行來源驗證可以在此加入 (例如檢查 event.origin)
     const data = event.data;
     
     if (data && data.type === 'H5P_SCORE_RESULT') {
         
         // !!! 關鍵步驟：更新全域變數 !!!
-        finalScore = data.score; // 更新全域變數
-        maxScore = data.maxScore;
+        finalScore = Number(data.score) || 0; // 更新全域變數
+        maxScore = Number(data.maxScore) || 0;
         scoreText = `最終成績分數: ${finalScore}/${maxScore}`;
         
         console.log("新的分數已接收:", scoreText); 
@@ -54,7 +53,8 @@ window.addEventListener('message', function (event) {
 
 function setup() { 
     // 建立畫布並初始化
-    createCanvas(windowWidth / 2, windowHeight / 2); 
+    // 使用一個合理的預設大小（畫布會在 windowResized 時調整）
+    createCanvas(min(windowWidth, 900) / 2, min(windowHeight, 900) / 2); 
     background(255); 
     colorMode(RGB);
     gravity = createVector(0, 0.25);
@@ -62,7 +62,7 @@ function setup() {
 } 
 
 function windowResized() {
-    resizeCanvas(windowWidth / 2, windowHeight / 2);
+    resizeCanvas(min(windowWidth, 900) / 2, min(windowHeight, 900) / 2);
     redraw();
 }
 
@@ -171,11 +171,25 @@ function spawnFireworks(count) {
     }
 }
 
+// Expose helper so other scripts can trigger fireworks programmatically
+window.triggerGradeFireworks = function (count = 6) {
+    spawnFireworks(count);
+    fireworkActive = true;
+    if (typeof loop === 'function') {
+        loop();
+    }
+};
+
 // draw() 主循環
 function draw() { 
     // 背景使用部分透明以產生拖影效果（動畫時）
     if (fireworkActive && fireworks.length > 0) {
-        background(0, 0, 0, 25); // 深色背景搭配透明度留拖尾 (需要 p5.js 支持的 RGBA)
+        // 使用黑色半透明來產生煙火拖尾的感覺
+        push();
+        noStroke();
+        fill(0, 0, 0, 60);
+        rect(0, 0, width, height);
+        pop();
     } else {
         background(255); // 靜態時白底
     }
@@ -235,7 +249,7 @@ function draw() {
     // C. 煙火動畫處理（如果有）
     // -----------------------------------------------------------------
     if (fireworks.length > 0) {
-        // 在動畫期間使用深色背景（在上面已用 partial alpha），更新並顯示所有煙火
+        // 更新並顯示所有煙火
         for (let i = fireworks.length - 1; i >= 0; i--) {
             let f = fireworks[i];
             f.update();
